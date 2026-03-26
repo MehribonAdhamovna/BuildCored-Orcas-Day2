@@ -14,10 +14,13 @@ mp_draw= mp.solutions.drawing_utils
 cap=cv2.VideoCapture(0)
 
 if not cap.isOpened():
-    cap = cv2.VideoCapture(1)  
+    cap = cv2.VideoCapture(1) 
 if not cap.isOpened():
     print("ERROR: No webcam found. Check your camera connection.")
     sys.exit(1)
+
+points = [] # This stores our drawing history
+
 
 while True:
     success, frame = cap.read()
@@ -61,7 +64,21 @@ while True:
             else:
     # Keep it BLUE when not clicking
                 cv2.circle(frame, (ix, iy), 15, (255, 0, 0), -1)
-
+                
+            if distance < 40:
+            
+                cv2.circle(frame, (ix, iy), 10, (0, 255, 255), -1)
+                points.append((ix, iy)) 
+            else:
+           
+                cv2.circle(frame, (ix, iy), 10, (255, 0, 0), -1)
+                points.append(None)
+    
+    
+    for i in range(1, len(points)):
+        if points[i - 1] is None or points[i] is None:
+            continue
+        cv2.line(frame, points[i - 1], points[i], (0, 255, 255), 2)
 
     cv2.imshow("AirCanvas - Day02", frame)
 
@@ -71,3 +88,6 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 print("\nAirCanvas is done. See you tomorrow for the Day 03!")
+    
+            
+           
