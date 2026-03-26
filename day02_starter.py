@@ -14,7 +14,7 @@ mp_draw= mp.solutions.drawing_utils
 cap=cv2.VideoCapture(0)
 
 if not cap.isOpened():
-    cap = cv2.VideoCapture(1)  # Try second camera index
+    cap = cv2.VideoCapture(1)  
 if not cap.isOpened():
     print("ERROR: No webcam found. Check your camera connection.")
     sys.exit(1)
