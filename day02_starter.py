@@ -20,6 +20,8 @@ if not cap.isOpened():
     sys.exit(1)
 
 points = [] # This stores our drawing history
+colors = [(0, 255, 255), (0, 255, 0), (0, 0, 255)] # Yellow, Green, Red
+colorIndex = 0 # Start with Yellow
 
 
 while True:
@@ -33,6 +35,12 @@ while True:
 
     results = hands.process(rgb_frame)
 
+
+
+
+    cv2.rectangle(frame, (100, 5), (200, 45), (0, 255, 255), -1) # Yellow Box
+    cv2.rectangle(frame, (300, 5), (400, 45), (0, 255, 0), -1)   # Green Box
+    cv2.rectangle(frame, (500, 5), (600, 45), (0, 0, 255), -1)   # Red Box
    
     if results.multi_hand_landmarks:
     
@@ -48,6 +56,12 @@ while True:
                 ix = int(index_tip.x*w) 
                 iy = int(index_tip.y*h)
 
+                # COLOR SWITCHER: If hand is in the top header area
+            if iy < 50:
+                if 100 < ix < 200: colorIndex = 0 # Yellow
+                elif 300 < ix < 400: colorIndex = 1 # Green
+                elif 500 < ix < 600: colorIndex = 2 # Red
+
         
             cv2.circle(frame, (ix, iy), 15, (255, 0, 0), -1)
 
@@ -57,28 +71,30 @@ while True:
             ty = int(thumb_tip.y*h)
             
             distance = ((ix - tx)**2 + (iy - ty)**2)**0.5
+    
+    
             
+        # --- THE ONLY DRAWING LOGIC YOU NEED ---
             if distance < 40:
-    # Draw a YELLOW circle to show a "Click" is happening
+                # 1. Draw a YELLOW circle on the tip (Shows you are clicking)
                 cv2.circle(frame, (ix, iy), 15, (0, 255, 255), -1)
+                
+                # 2. Save the point AND the current color to the list
+                points.append(((ix, iy), colors[colorIndex]))
             else:
-    # Keep it BLUE when not clicking
+                # 1. Draw a BLUE circle on the tip (Shows you are moving)
                 cv2.circle(frame, (ix, iy), 15, (255, 0, 0), -1)
                 
-            if distance < 40:
-            
-                cv2.circle(frame, (ix, iy), 10, (0, 255, 255), -1)
-                points.append((ix, iy)) 
-            else:
-           
-                cv2.circle(frame, (ix, iy), 10, (255, 0, 0), -1)
+                # 2. Add a break so the line stops
                 points.append(None)
     
     
+    # Draw the lines with their specific colors
     for i in range(1, len(points)):
         if points[i - 1] is None or points[i] is None:
             continue
-        cv2.line(frame, points[i - 1], points[i], (0, 255, 255), 2)
+        # points[i][0] is the (x,y), points[i][1] is the color
+        cv2.line(frame, points[i-1][0], points[i][0], points[i][1], 2)
 
     cv2.imshow("AirCanvas - Day02", frame)
 
@@ -88,6 +104,3 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 print("\nAirCanvas is done. See you tomorrow for the Day 03!")
-    
-            
-           
